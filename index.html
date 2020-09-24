@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+  <input type="file" onchange="readData(this)" value="上传excel文件"/>
+  <div id="htmlout"></div>
+  <input type="file" onchange="readImage(this)" value="上传图片">
+  <div id="imgout"></div>
+</body>
+</html>
+<script src="https://lib.baomitu.com/jquery/3.5.0/jquery.js" type="text/javascript"></script>
+<script src="https://unpkg.com/canvas-datagrid/dist/canvas-datagrid.js"></script>
+<script src="js/xlsx.full.min.js"></script>
+<script type="text/javascript">
+  $().ready(function () {
+    // $('#htmlout').load('F:\\Code\\EasyExcel\\src\\main\\resources\\fill\\complex.xlsx')
+   /* var fso
+    if (window.ActiveXObject) {
+      fso = new ActiveXObject('Scripting.FileSystemObject')
+    } else if(window.XMLHttpRequest){
+      fso = new XMLHttpRequest()
+    }
+    var f1 = fso.GetFile()
+    // var f1 = fso.getAsFile()
+    console.log(f1)*/
+  })
+  var cDg
+  var HTMLOUT = document.getElementById('htmlout')
+  function readData(obj) {
+    if (window.FileReader) {
+      var reader = new FileReader()
+    } else {
+      alert('不支持')
+    }
+    var files = obj.files[0]
+    if (files) {
+      reader.readAsBinaryString(files)
+      reader.onload = function (ev) {
+        var re = ev.target.result
+        var wb = XLSX.read(re, {type: 'binary'})
+        var wsName = wb.SheetNames[0]
+        console.log(wsName);
+        var data = XLSX.utils.sheet_to_json(wb.Sheets[wsName])
+        console.log(data);
+        if(!cDg) cDg = canvasDatagrid({ parentNode:HTMLOUT, data:data });
+        cDg.style.height = '100%';
+        cDg.style.width = '100%';
+        cDg.data = data;
+      }
+    }
+  }
+  function readImage(obj) {
+    const reader = new FileReader();
+    const files = obj.files[0]
+    if (files) {
+      reader.onload = function (ev) {
+        const result = ev.target.result
+        const img = new Image()
+        img.src = result
+        img.width = 300
+        img.height = 300
+        const imgDiv = document.getElementById('imgout')
+        imgDiv.appendChild(img)
+      }
+      reader.readAsDataURL(files)
+    }
+  }
+</script>
